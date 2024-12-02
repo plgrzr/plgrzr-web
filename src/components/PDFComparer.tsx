@@ -126,7 +126,7 @@ const PDFComparer = () => {
                         </p>
                         {comparison.result.report_url && (
                           <a
-                            href={comparison.result.report_url}
+                            href={`http://localhost:5001/report/${comparison.result.report_url}`}
                             className="text-blue-500 hover:underline"
                             target="_blank"
                             rel="noopener noreferrer"

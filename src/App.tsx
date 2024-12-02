@@ -1,8 +1,6 @@
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import { auth } from "@/lib/auth";
-import PdfUpload from "./components/Upload";
-import PDFAnalysisDashboard from "./components/Compare";
 import { ThemeProvider } from "./components/theme-provider";
 import { ModeToggle } from "./components/mode-toggle";
 import { Button } from "./components/ui/button";
@@ -53,7 +51,7 @@ const App = () => {
         </header>
 
         <main className="container mx-auto px-4 py-8">
-          {!session.data ? (
+          {session.data ? (
             <Card className="max-w-md mx-auto">
               <CardHeader>
                 <CardTitle>Welcome to plgrzr</CardTitle>
