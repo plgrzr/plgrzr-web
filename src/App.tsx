@@ -12,6 +12,7 @@ import { LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 
 import "./App.css";
+import PDFComparer from "./components/PDFComparer";
 
 const App = () => {
   const session = auth.useSession();
@@ -74,8 +75,8 @@ const App = () => {
             </Card>
           ) : (
             <div className="space-y-8">
-              <PDFAnalysisDashboard />
-
+              {/* <PDFAnalysisDashboard /> */}
+              <PDFComparer />
               <Card>
                 <CardContent className="p-6">
                   <pre className="text-sm bg-muted p-4 rounded-lg overflow-auto">
