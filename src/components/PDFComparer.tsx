@@ -4,12 +4,22 @@ import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import type { Root } from "./types";
+import { ComparisonDetails } from "./PDFComparer/ComparisonDetails";
+
+const SIMILARITY_THRESHOLD = 0.8; // 80%
 
 const PDFComparer = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<Root | null>(null);
   const [progress, setProgress] = useState(0);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,14 +36,13 @@ const PDFComparer = () => {
     for (const file of files) {
       formData.append(file.name, file);
     }
-    
 
     try {
       const response = await fetch("http://localhost:3001/compare-multiple", {
         method: "POST",
         body: formData,
       });
-      const data = await response.json();
+      const data: Root = await response.json();
       setResults(data);
     } catch (error) {
       console.error("Comparison failed:", error);
@@ -43,11 +52,21 @@ const PDFComparer = () => {
     }
   };
 
+  const highSimilarityComparisons =
+    results?.comparisons.filter(
+      (comp) => comp.result.similarity_index >= SIMILARITY_THRESHOLD
+    ) || [];
+
+  const regularComparisons =
+    results?.comparisons.filter(
+      (comp) => comp.result.similarity_index < SIMILARITY_THRESHOLD
+    ) || [];
+
   return (
     <div className="w-full max-w-4xl mx-auto p-4 space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>PDF Comparison Tool</CardTitle>
+          <CardTitle>Plgrzr Checker</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="border-2 border-dashed rounded-lg p-8 text-center">
@@ -94,51 +113,91 @@ const PDFComparer = () => {
           {loading && <Progress value={progress} />}
 
           {results && (
-            <div className="mt-4 space-y-4">
-              {results.comparisons.map((comparison: any, index: number) => (
-                <Card key={index}>
-                  <CardContent className="pt-4">
-                    <h4 className="font-medium mb-2">
-                      {comparison.file1} vs {comparison.file2}
-                    </h4>
-                    {comparison.error ? (
-                      <p className="text-red-500">{comparison.error}</p>
-                    ) : (
-                      <div className="space-y-2">
-                        <p>
-                          Similarity Index:{" "}
-                          {(comparison.result.similarity_index * 100).toFixed(
-                            1
-                          )}
-                          %
-                        </p>
-                        <p>
-                          Text Similarity:{" "}
-                          {(comparison.result.text_similarity * 100).toFixed(1)}
-                          %
-                        </p>
-                        <p>
-                          Handwriting Similarity:{" "}
-                          {(
-                            comparison.result.handwriting_similarity * 100
-                          ).toFixed(1)}
-                          %
-                        </p>
-                        {comparison.result.report_url && (
-                          <a
-                            href={`http://localhost:5001/report/${comparison.result.report_url}`}
-                            className="text-blue-500 hover:underline"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            View Full Report
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="mt-4 space-y-8">
+              {highSimilarityComparisons.length > 0 && (
+                <div>
+                  <h2 className="text-xl font-bold text-red-600 mb-4">
+                    High Similarity Detected ({highSimilarityComparisons.length}
+                    )
+                  </h2>
+                  <div className="space-y-4">
+                    {highSimilarityComparisons.map((comparison, index) => (
+                      // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                      <Card key={index} className="border-red-200">
+                        <CardContent className="pt-4">
+                          <Sheet>
+                            <SheetTrigger asChild>
+                              <div className="cursor-pointer p-4 hover:bg-gray-50">
+                                <h3 className="text-lg font-medium text-red-600">
+                                  {comparison.file1} vs {comparison.file2}
+                                </h3>
+                                <p className="text-red-500">
+                                  Similarity Index:{" "}
+                                  {(
+                                    comparison.result.similarity_index * 100
+                                  ).toFixed(1)}
+                                  %
+                                </p>
+                              </div>
+                            </SheetTrigger>
+                            <SheetContent
+                              side="right"
+                              className="w-full sm:w-[90vw] max-w-[1000px] overflow-y-auto"
+                            >
+                              <SheetHeader>
+                                <SheetTitle>Comparison Details</SheetTitle>
+                              </SheetHeader>
+                              <ComparisonDetails comparison={comparison} />
+                            </SheetContent>
+                          </Sheet>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {regularComparisons.length > 0 && (
+                <div>
+                  <h2 className="text-xl font-bold mb-4">
+                    Other Comparisons ({regularComparisons.length})
+                  </h2>
+                  <div className="space-y-4">
+                    {regularComparisons.map((comparison, index) => (
+                      // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                      <Card key={index}>
+                        <CardContent className="pt-4">
+                          <Sheet>
+                            <SheetTrigger asChild>
+                              <div className="cursor-pointer p-4 hover:bg-gray-50">
+                                <h3 className="text-lg font-medium">
+                                  {comparison.file1} vs {comparison.file2}
+                                </h3>
+                                <p>
+                                  Similarity Index:{" "}
+                                  {(
+                                    comparison.result.similarity_index * 100
+                                  ).toFixed(1)}
+                                  %
+                                </p>
+                              </div>
+                            </SheetTrigger>
+                            <SheetContent
+                              side="right"
+                              className="w-full sm:w-[90vw] max-w-[1000px] overflow-y-auto"
+                            >
+                              <SheetHeader>
+                                <SheetTitle>Comparison Details</SheetTitle>
+                              </SheetHeader>
+                              <ComparisonDetails comparison={comparison} />
+                            </SheetContent>
+                          </Sheet>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
