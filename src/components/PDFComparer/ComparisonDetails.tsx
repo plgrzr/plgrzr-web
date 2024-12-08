@@ -11,6 +11,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import type { Comparison } from "../types";
+import { MathJaxContext } from "better-react-mathjax";
 
 const ScoreDisplay = ({ label, value, className = "" }) => (
   <div className={`space-y-1 ${className}`}>
@@ -51,13 +52,13 @@ const ConsistencyDisplay = ({ consistency }) => (
               <div className="space-y-2">
                 <span className="text-sm text-muted-foreground">Current</span>
                 <p className="text-sm bg-muted p-3 rounded-md">
-                  {segment.segment_text}
+                  <MathJaxContext>{segment.segment_text}</MathJaxContext>
                 </p>
               </div>
               <div className="space-y-2">
                 <span className="text-sm text-muted-foreground">Next</span>
                 <p className="text-sm bg-muted p-3 rounded-md">
-                  {segment.next_segment_text}
+                  <MathJaxContext>{segment.next_segment_text}</MathJaxContext>
                 </p>
               </div>
               <ScoreDisplay
@@ -252,7 +253,7 @@ export const ComparisonDetails = ({
         {result.report_url && (
           <div className="flex justify-end">
             <a
-              href={`http://localhost:5001/report/${result.report_url}`}
+              href={`http://localhost:5001/${result.report_url}`}
               className="inline-flex items-center gap-2 text-primary hover:text-primary/90 transition-colors"
               target="_blank"
               rel="noopener noreferrer"
