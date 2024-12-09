@@ -1,4 +1,11 @@
 // Types
+
+import { Viewer, Worker } from "@react-pdf-viewer/core";
+import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+
+// Import styles
+import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+
 type FeatureScore = {
   confidence_similarity: number;
   symbol_density_similarity: number;
@@ -244,161 +251,183 @@ const VariationsDisplay = ({ variations }) => (
 
 export const ComparisonDetails = ({ comparison }) => {
   const { result } = comparison;
+  const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
   return (
-    <div className="space-y-8 p-4">
-      <div className="grid gap-6 md:grid-cols-3">
-        <ScoreDisplay
-          label="Overall Similarity"
-          value={result.similarity_index}
-          icon={Sparkles}
-        />
-        <ScoreDisplay
-          label="Text Similarity"
-          value={result.text_similarity}
-          icon={FileText}
-        />
-        <ScoreDisplay
-          label="Handwriting Similarity"
-          value={result.handwriting_similarity}
-          icon={PenTool}
-        />
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Feature Analysis</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6 md:grid-cols-2">
-            <ScoreDisplay
-              label="Confidence Similarity"
-              value={result.feature_scores.confidence_similarity}
-            />
-            <ScoreDisplay
-              label="Symbol Density Similarity"
-              value={result.feature_scores.symbol_density_similarity}
-            />
-            <ScoreDisplay
-              label="Line Break Similarity"
-              value={result.feature_scores.line_break_similarity}
-            />
-            <ScoreDisplay
-              label="Average Confidence Similarity"
-              value={result.feature_scores.average_confidence_similarity}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-0">
-          <Tabs defaultValue="anomalies" className="w-full">
-            <TabsList className="w-full justify-start border-b rounded-none h-auto p-0">
-              <TabsTrigger
-                value="anomalies"
-                className="data-[state=active]:border-b-2 rounded-none"
-              >
-                Anomalies
-              </TabsTrigger>
-              <TabsTrigger
-                value="consistency"
-                className="data-[state=active]:border-b-2 rounded-none"
-              >
-                Consistency
-              </TabsTrigger>
-              <TabsTrigger
-                value="variations"
-                className="data-[state=active]:border-b-2 rounded-none"
-              >
-                Variations
-              </TabsTrigger>
-            </TabsList>
-
-            <div className="p-4">
-              <TabsContent value="anomalies" className="m-0">
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div>
-                    <h4 className="text-lg font-medium mb-4">Document 1</h4>
-                    <ScrollArea className="h-[500px] pr-4">
-                      {result.anomalies.document1.map((anomaly, idx) => (
-                        <AnomalyDisplay
-                          key={`anomaly1-${idx}`}
-                          anomaly={anomaly}
-                        />
-                      ))}
-                    </ScrollArea>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-medium mb-4">Document 2</h4>
-                    <ScrollArea className="h-[500px] pr-4">
-                      {result.anomalies.document2.map((anomaly, idx) => (
-                        <AnomalyDisplay
-                          key={`anomaly2-${idx}`}
-                          anomaly={anomaly}
-                        />
-                      ))}
-                    </ScrollArea>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="consistency" className="m-0">
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div>
-                    <h4 className="text-lg font-medium mb-4">Document 1</h4>
-                    <ConsistencyDisplay
-                      consistency={result.text_consistency.doc1}
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-medium mb-4">Document 2</h4>
-                    <ConsistencyDisplay
-                      consistency={result.text_consistency.doc2}
-                    />
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="variations" className="m-0">
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div>
-                    <h4 className="text-lg font-medium mb-4">Document 1</h4>
-                    <VariationsDisplay
-                      variations={result.variations.document1}
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-medium mb-4">Document 2</h4>
-                    <VariationsDisplay
-                      variations={result.variations.document2}
-                    />
-                  </div>
-                </div>
-              </TabsContent>
-            </div>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      {result.report_url && (
-        <div className="flex justify-end">
-          <a
-            href={
-              result.report_url.startsWith("http")
-                ? result.report_url
-                : `http://localhost:5001/${result.report_url}`
-            }
-            className="inline-flex items-center gap-2 text-primary hover:text-primary/90 transition-colors"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View Full Report
-            <ChevronRight className="h-4 w-4" />
-          </a>
+    <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+      <div className="space-y-8 p-4">
+        <div className="grid gap-6 md:grid-cols-3">
+          <ScoreDisplay
+            label="Overall Similarity"
+            value={result.similarity_index}
+            icon={Sparkles}
+          />
+          <ScoreDisplay
+            label="Text Similarity"
+            value={result.text_similarity}
+            icon={FileText}
+          />
+          <ScoreDisplay
+            label="Handwriting Similarity"
+            value={result.handwriting_similarity}
+            icon={PenTool}
+          />
         </div>
-      )}
-    </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Feature Analysis</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-6 md:grid-cols-2">
+              <ScoreDisplay
+                label="Confidence Similarity"
+                value={result.feature_scores.confidence_similarity}
+              />
+              <ScoreDisplay
+                label="Symbol Density Similarity"
+                value={result.feature_scores.symbol_density_similarity}
+              />
+              <ScoreDisplay
+                label="Line Break Similarity"
+                value={result.feature_scores.line_break_similarity}
+              />
+              <ScoreDisplay
+                label="Average Confidence Similarity"
+                value={result.feature_scores.average_confidence_similarity}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-0">
+            <Tabs defaultValue="anomalies" className="w-full">
+              <TabsList className="w-full justify-start border-b rounded-none h-auto p-0">
+                <TabsTrigger
+                  value="anomalies"
+                  className="data-[state=active]:border-b-2 rounded-none"
+                >
+                  Anomalies
+                </TabsTrigger>
+                <TabsTrigger
+                  value="consistency"
+                  className="data-[state=active]:border-b-2 rounded-none"
+                >
+                  Consistency
+                </TabsTrigger>
+                <TabsTrigger
+                  value="variations"
+                  className="data-[state=active]:border-b-2 rounded-none"
+                >
+                  Variations
+                </TabsTrigger>
+                <TabsTrigger
+                  value="detailed_report"
+                  className="data-[state=active]:border-b-2 rounded-none"
+                >
+                  Detailed Report
+                </TabsTrigger>
+              </TabsList>
+
+              <div className="p-4">
+                <TabsContent value="anomalies" className="m-0">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div>
+                      <h4 className="text-lg font-medium mb-4">Document 1</h4>
+                      <ScrollArea className="h-[500px] pr-4">
+                        {result.anomalies.document1.map((anomaly, idx) => (
+                          <AnomalyDisplay
+                            key={`anomaly1-${idx}`}
+                            anomaly={anomaly}
+                          />
+                        ))}
+                      </ScrollArea>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-medium mb-4">Document 2</h4>
+                      <ScrollArea className="h-[500px] pr-4">
+                        {result.anomalies.document2.map((anomaly, idx) => (
+                          <AnomalyDisplay
+                            key={`anomaly2-${idx}`}
+                            anomaly={anomaly}
+                          />
+                        ))}
+                      </ScrollArea>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="consistency" className="m-0">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div>
+                      <h4 className="text-lg font-medium mb-4">Document 1</h4>
+                      <ConsistencyDisplay
+                        consistency={result.text_consistency.doc1}
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-medium mb-4">Document 2</h4>
+                      <ConsistencyDisplay
+                        consistency={result.text_consistency.doc2}
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="variations" className="m-0">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div>
+                      <h4 className="text-lg font-medium mb-4">Document 1</h4>
+                      <VariationsDisplay
+                        variations={result.variations.document1}
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-medium mb-4">Document 2</h4>
+                      <VariationsDisplay
+                        variations={result.variations.document2}
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="detailed_report" className="m-0">
+                  <div
+                    style={{
+                      border: "1px solid rgba(0, 0, 0, 0.3)",
+                      height: "750px",
+                    }}
+                  >
+                    <Viewer
+                      plugins={[defaultLayoutPluginInstance]}
+                      fileUrl={`http://localhost:5001/${result.report_url}`}
+                    />
+                  </div>
+                </TabsContent>
+              </div>
+            </Tabs>
+          </CardContent>
+        </Card>
+
+        {result.report_url && (
+          <div className="flex justify-end">
+            <a
+              href={
+                result.report_url.startsWith("http")
+                  ? result.report_url
+                  : `http://localhost:5001/${result.report_url}`
+              }
+              className="inline-flex items-center gap-2 text-primary hover:text-primary/90 transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View Full Report
+              <ChevronRight className="h-4 w-4" />
+            </a>
+          </div>
+        )}
+      </div>
+    </Worker>
   );
 };
 
