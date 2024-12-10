@@ -112,10 +112,13 @@ const PDFComparer = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/compare-multiple", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://ls8sw8cgwwkwws04scoow8c8.13.76.121.152.sslip.io/compare-multiple",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Comparison failed");
