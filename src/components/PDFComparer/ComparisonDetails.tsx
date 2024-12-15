@@ -400,7 +400,7 @@ export const ComparisonDetails = ({ comparison }) => {
                   >
                     <Viewer
                       plugins={[defaultLayoutPluginInstance]}
-                      fileUrl={`http://localhost:5001/${result.report_url}`}
+                      fileUrl={`https://ls8sw8cgwwkwws04scoow8c8.13.76.121.152.sslip.io/${result.report_url}`}
                     />
                   </div>
                 </TabsContent>
