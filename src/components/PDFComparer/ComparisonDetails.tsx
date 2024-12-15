@@ -415,7 +415,7 @@ export const ComparisonDetails = ({ comparison }) => {
               href={
                 result.report_url.startsWith("http")
                   ? result.report_url
-                  : `http://localhost:5001/${result.report_url}`
+                  : `https://ls8sw8cgwwkwws04scoow8c8.13.76.121.152.sslip.io/${result.report_url}`
               }
               className="inline-flex items-center gap-2 text-primary hover:text-primary/90 transition-colors"
               target="_blank"
